@@ -214,6 +214,7 @@
             transition: transform 0.2s;
             font-family: inherit;
             font-weight: 500;
+            font-size: 0.875rem;
         }
 
         .n8n-chat-widget .chat-input button:hover {
