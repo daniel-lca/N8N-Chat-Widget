@@ -36,21 +36,10 @@ Use the following code block in your HTML, preferably right before the closing `
       position: 'right', // Widget position on screen: 'left' or 'right'
       backgroundColor: '#ffffff', // Background color of the chat widget container
       fontColor: '#333333' // Default text color
+      fontSize: '14px' // Chat messages font size
     }
   };
 </script>
-
-<style>
-  /*
-  .n8n-chat-widget .chat-message {
-    font-size: 14px !important; /* Default size is 14px */
-  }
-
-  .n8n-chat-widget .chat-input textarea {
-    font-size: 14px !important; /* Default size is 14px */
-  }
-  */
-</style>
 
 <script src="https://cdn.jsdelivr.net/gh/daniel-lca/N8N-Chat-Widget@main/chat-widget.js"></script>
 <!-- End Widget Configuration -->
