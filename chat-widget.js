@@ -184,6 +184,14 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
+        .n8n-chat-widget .chat-message.bot > *:first-child {
+            margin-top: 0;
+        }
+
+        .n8n-chat-widget .chat-message.bot > *:last-child {
+            margin-bottom: 0;
+        }
+
         /* Markdown styling for bot messages */
         .n8n-chat-widget .chat-message.bot h1,
         .n8n-chat-widget .chat-message.bot h2,
