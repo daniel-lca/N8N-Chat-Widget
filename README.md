@@ -41,6 +41,7 @@ Use the following code block in your HTML, preferably right before the closing `
   };
 </script>
 
-<script src="https://cdn.jsdelivr.net/gh/daniel-lca/N8N-Chat-Widget@main/chat-widget.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/daniel-lca/N8N-Chat-Widget/chat-widget.js"></script>
 <!-- End Widget Configuration -->
+
 
