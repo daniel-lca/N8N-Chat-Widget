@@ -166,7 +166,6 @@
             word-wrap: break-word;
             font-size: var(--chat--font-size);
             line-height: 1.5;
-            white-space: pre-line
         }
 
         .n8n-chat-widget .chat-message.user {
