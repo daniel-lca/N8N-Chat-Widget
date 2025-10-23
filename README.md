@@ -19,13 +19,11 @@ Use the following code block in your HTML, preferably right before the closing `
 <script>
   window.ChatWidgetConfig = {
     webhook: {
-      // ⚠️ REQUIRED: Paste your n8n production webhook URL here.
-      url: 'YOUR_N8N_WEBHOOK_URL_HERE', 
+      url: 'YOUR_N8N_WEBHOOK_URL_HERE', // Your n8n production webhook URL.
       route: 'general'
     },
     branding: {
-      // ⚠️ REQUIRED: URL to your logo (e.g., a PNG or SVG).
-      logo: 'YOUR_LOGO_URL_HERE', 
+      logo: 'YOUR_LOGO_URL_HERE', // URL to your logo (e.g., a PNG or SVG).
       name: 'LowCode Agency', // Your company/brand name
       welcomeText: 'Hi, how can we help?', // Initial welcome message shown to users
       responseTimeText: 'Our virtual assistant works 24/7' // Response time information
@@ -43,5 +41,6 @@ Use the following code block in your HTML, preferably right before the closing `
 
 <script src="https://cdn.jsdelivr.net/gh/daniel-lca/N8N-Chat-Widget/chat-widget.js"></script>
 <!-- End Widget Configuration -->
+
 
 
