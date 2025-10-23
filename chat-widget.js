@@ -292,8 +292,8 @@
             .n8n-chat-widget .chat-container {
                 width: 100%;
                 height: 100%;
-                max-width: 100%;
-                max-height: 100%;
+                max-width: 100svw;
+                max-height: 100svh;
                 bottom: 0;
                 right: 0;
                 left: 0;
