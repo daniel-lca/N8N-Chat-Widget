@@ -8,6 +8,10 @@
             --chat--color-background: var(--n8n-chat-background-color, #ffffff);
             --chat--color-font: var(--n8n-chat-font-color, #333333);
             --chat--font-size: var(--n8n-chat-font-size, 14px);
+            --chat--width: var(--n8n-chat-width, 380px);
+            --chat--height: var(--n8n-chat-height, 600px);
+            --chat--max-width: var(--n8n-chat-max-width, 90vw);
+            --chat--max-height: var(--n8n-chat-max-height, 80vh);
             font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
 
@@ -17,8 +21,10 @@
             right: 20px;
             z-index: 1000;
             display: none;
-            width: 380px;
-            height: 600px;
+            width: var(--chat--width);
+            height: var(--chat--height);
+            max-width: var(--chat--max-width);
+            max-height: var(--chat--max-height);
             background: var(--chat--color-background);
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(133, 79, 255, 0.15);
@@ -158,7 +164,7 @@
             border-radius: 12px;
             max-width: 80%;
             word-wrap: break-word;
-            font-size: var(--n8n-chat-font-size);
+            font-size: var(--chat--font-size);
             line-height: 1.5;
             white-space: pre-line
         }
@@ -214,7 +220,6 @@
             transition: transform 0.2s;
             font-family: inherit;
             font-weight: 500;
-            font-size: 0.875rem;
         }
 
         .n8n-chat-widget .chat-input button:hover {
@@ -274,6 +279,45 @@
         .n8n-chat-widget .chat-footer a:hover {
             opacity: 1;
         }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .n8n-chat-widget .chat-container {
+                width: min(var(--chat--width), calc(100vw - 40px));
+                height: min(var(--chat--height), calc(100vh - 100px));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .n8n-chat-widget .chat-container {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                max-height: 100%;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                top: 0;
+                border-radius: 0;
+            }
+            
+            .n8n-chat-widget .chat-container.position-left {
+                left: 0;
+                right: 0;
+            }
+            
+            .n8n-chat-widget .chat-toggle {
+                bottom: 10px;
+                right: 10px;
+                width: 50px;
+                height: 50px;
+            }
+            
+            .n8n-chat-widget .chat-toggle.position-left {
+                left: 10px;
+                right: auto;
+            }
+        }
     `;
 
     // Load Geist font
@@ -309,7 +353,13 @@
             position: 'right',
             backgroundColor: '#ffffff',
             fontColor: '#333333',
-            fontSize: '14px'
+            fontSize: '14px',
+            dimensions: {
+                width: '380px',
+                height: '600px',
+                maxWidth: '90vw',
+                maxHeight: '80vh'
+            }
         }
     };
 
@@ -317,8 +367,16 @@
     const config = window.ChatWidgetConfig ? 
         {
             webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
-            branding: { ...defaultConfig.branding, ...window.ChatWidgetConfig.branding },
-            style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style }
+            branding: { 
+                ...defaultConfig.branding, 
+                ...window.ChatWidgetConfig.branding,
+                poweredBy: { ...defaultConfig.branding.poweredBy, ...(window.ChatWidgetConfig.branding?.poweredBy || {}) }
+            },
+            style: { 
+                ...defaultConfig.style, 
+                ...window.ChatWidgetConfig.style,
+                dimensions: { ...defaultConfig.style.dimensions, ...(window.ChatWidgetConfig.style?.dimensions || {}) }
+            }
         } : defaultConfig;
 
     // Prevent multiple initializations
@@ -337,6 +395,14 @@
     widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
     widgetContainer.style.setProperty('--n8n-chat-font-color', config.style.fontColor);
     widgetContainer.style.setProperty('--n8n-chat-font-size', config.style.fontSize || '14px');
+    
+    // Set dimension variables
+    if (config.style.dimensions) {
+        widgetContainer.style.setProperty('--n8n-chat-width', config.style.dimensions.width || '380px');
+        widgetContainer.style.setProperty('--n8n-chat-height', config.style.dimensions.height || '600px');
+        widgetContainer.style.setProperty('--n8n-chat-max-width', config.style.dimensions.maxWidth || '90vw');
+        widgetContainer.style.setProperty('--n8n-chat-max-height', config.style.dimensions.maxHeight || '80vh');
+    }
 
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
