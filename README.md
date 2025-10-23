@@ -35,7 +35,7 @@ Use the following code block in your HTML, preferably right before the closing `
       secondaryColor: '#382e7b', // Secondary color for gradients
       position: 'right', // Widget position on screen: 'left' or 'right'
       backgroundColor: '#ffffff', // Background color of the chat widget container
-      fontColor: '#333333' // Default text color
+      fontColor: '#333333', // Default text color
       fontSize: '14px' // Chat messages font size
     }
   };
@@ -43,3 +43,4 @@ Use the following code block in your HTML, preferably right before the closing `
 
 <script src="https://cdn.jsdelivr.net/gh/daniel-lca/N8N-Chat-Widget@main/chat-widget.js"></script>
 <!-- End Widget Configuration -->
+
