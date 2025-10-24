@@ -287,19 +287,6 @@
                 height: min(var(--chat--height), calc(100vh - 100px));
             }
         }
-
-        @media (max-width: 480px) {
-            .n8n-chat-widget .chat-container {
-                width: 100svw;
-                height: 100svh;
-                max-width: 100svw;
-                max-height: 100svh;
-                bottom: 0;
-                right: 0;
-                left: 0;
-                top: 0;
-                border-radius: 0;
-            }
             
             .n8n-chat-widget .chat-container.position-left {
                 left: 0;
