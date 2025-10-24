@@ -799,7 +799,7 @@
             
             // Optional: Change button text to show loading
             const originalButtonText = sendButton.textContent;
-            sendButton.textContent = 'Sending...';
+            sendButton.textContent = 'Send';
             
             const messageData = {
                 action: "sendMessage",
