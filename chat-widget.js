@@ -174,7 +174,8 @@
             word-wrap: break-word;
             font-size: var(--chat--font-size);
             line-height: 1.4;
-            white-space: pre-line
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         .n8n-chat-widget .chat-message.user {
@@ -260,7 +261,7 @@
         }
 
         .n8n-chat-widget .chat-message.bot > *:last-child {
-            margin-bottom: 0;
+            margin-bottom: 0 !important;
         }
 
         .n8n-chat-widget .chat-input {
@@ -288,6 +289,11 @@
             opacity: 0.6;
         }
 
+        .n8n-chat-widget .chat-input textarea:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .n8n-chat-widget .chat-input button {
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
@@ -300,8 +306,50 @@
             font-weight: 500;
         }
 
-        .n8n-chat-widget .chat-input button:hover {
+        .n8n-chat-widget .chat-input button:hover:not(:disabled) {
             transform: scale(1.05);
+        }
+
+        .n8n-chat-widget .chat-input button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Typing indicator styles */
+        .n8n-chat-widget .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+        }
+
+        .n8n-chat-widget .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: var(--chat--color-primary);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .n8n-chat-widget .typing-indicator span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .n8n-chat-widget .typing-indicator span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .n8n-chat-widget .chat-toggle {
@@ -668,6 +716,9 @@
 
         // Function to process message content (markdown or plain text)
         function processMessageContent(content, isBot = true) {
+            // Trim whitespace from content
+            content = content.trim();
+            
             if (!isBot || !config.markdown.enabled) {
                 // For user messages or when markdown is disabled, return plain text
                 return { type: 'text', content: content };
@@ -679,8 +730,13 @@
                 const rawHtml = marked.parse(content);
                 
                 // Sanitize HTML if enabled
-                const finalHtml = config.markdown.sanitize ? 
+                let finalHtml = config.markdown.sanitize ? 
                     DOMPurify.sanitize(rawHtml) : rawHtml;
+                
+                // Remove trailing empty paragraphs and line breaks
+                finalHtml = finalHtml.trim()
+                    .replace(/<p>\s*<\/p>\s*$/gi, '')
+                    .replace(/<br\s*\/?>\s*$/gi, '');
                 
                 return { type: 'html', content: finalHtml };
             } catch (error) {
@@ -735,6 +791,16 @@
         }
 
         async function sendMessage(message) {
+            // Disable send button and textarea
+            sendButton.disabled = true;
+            textarea.disabled = true;
+            sendButton.style.opacity = '0.6';
+            sendButton.style.cursor = 'not-allowed';
+            
+            // Optional: Change button text to show loading
+            const originalButtonText = sendButton.textContent;
+            sendButton.textContent = 'Sending...';
+            
             const messageData = {
                 action: "sendMessage",
                 sessionId: currentSessionId,
@@ -751,6 +817,13 @@
             messagesContainer.appendChild(userMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
+            // Add typing indicator
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'chat-message bot typing-indicator';
+            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+            messagesContainer.appendChild(typingIndicator);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
             try {
                 const response = await fetch(config.webhook.url, {
                     method: 'POST',
@@ -761,6 +834,9 @@
                 });
                 
                 const data = await response.json();
+                
+                // Remove typing indicator
+                typingIndicator.remove();
                 
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'chat-message bot';
@@ -779,6 +855,23 @@
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             } catch (error) {
                 console.error('Error:', error);
+                // Remove typing indicator
+                typingIndicator.remove();
+                
+                // Show error message to the user
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'chat-message bot';
+                errorDiv.textContent = 'Sorry, there was an error processing your message. Please try again.';
+                messagesContainer.appendChild(errorDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } finally {
+                // Re-enable send button and textarea
+                sendButton.disabled = false;
+                textarea.disabled = false;
+                sendButton.style.opacity = '1';
+                sendButton.style.cursor = 'pointer';
+                sendButton.textContent = originalButtonText;
+                textarea.focus(); // Return focus to textarea for better UX
             }
         }
 
