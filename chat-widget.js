@@ -17,8 +17,8 @@
 
         .n8n-chat-widget .chat-container {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 0;
+            right: 0;
             z-index: 1000;
             display: none;
             width: var(--chat--width);
@@ -33,9 +33,17 @@
             font-family: inherit;
         }
 
-        .n8n-chat-widget .chat-container.position-left {
-            right: auto;
-            left: 20px;
+        /* Desktop positioning */
+        @media (min-width: 481px) {
+            .n8n-chat-widget .chat-container {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .n8n-chat-widget .chat-container.position-left {
+                right: auto;
+                left: 20px;
+            }
         }
 
         .n8n-chat-widget .chat-container.open {
@@ -159,13 +167,14 @@
         }
 
         .n8n-chat-widget .chat-message {
-            padding: 12px 16px;
-            margin: 8px 0;
+            padding: 8px 12px;
+            margin: 6px 0;
             border-radius: 12px;
             max-width: 80%;
             word-wrap: break-word;
             font-size: var(--chat--font-size);
-            line-height: 1.5;
+            line-height: 1.4;
+            white-space: pre-line
         }
 
         .n8n-chat-widget .chat-message.user {
@@ -184,14 +193,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        .n8n-chat-widget .chat-message.bot > *:first-child {
-            margin-top: 0;
-        }
-
-        .n8n-chat-widget .chat-message.bot > *:last-child {
-            margin-bottom: 0;
-        }
-
         /* Markdown styling for bot messages */
         .n8n-chat-widget .chat-message.bot h1,
         .n8n-chat-widget .chat-message.bot h2,
@@ -199,29 +200,41 @@
         .n8n-chat-widget .chat-message.bot h4,
         .n8n-chat-widget .chat-message.bot h5,
         .n8n-chat-widget .chat-message.bot h6 {
-            margin: 0.5em 0;
+            margin: 0.3em 0;
             font-weight: 600;
         }
 
         .n8n-chat-widget .chat-message.bot ul,
         .n8n-chat-widget .chat-message.bot ol {
-            margin: 0.5em 0;
-            padding-left: 1.5em;
+            margin: 0.3em 0;
+            padding-left: 1.2em;
+        }
+
+        .n8n-chat-widget .chat-message.bot p {
+            margin: 0.3em 0;
+        }
+
+        .n8n-chat-widget .chat-message.bot p:first-child {
+            margin-top: 0 !important;
+        }
+
+        .n8n-chat-widget .chat-message.bot p:last-child {
+            margin-bottom: 0 !important;
         }
 
         .n8n-chat-widget .chat-message.bot code {
             background: rgba(133, 79, 255, 0.1);
-            padding: 0.2em 0.4em;
+            padding: 0.1em 0.3em;
             border-radius: 3px;
             font-size: 0.9em;
         }
 
         .n8n-chat-widget .chat-message.bot pre {
             background: rgba(133, 79, 255, 0.1);
-            padding: 1em;
+            padding: 0.8em;
             border-radius: 6px;
             overflow-x: auto;
-            margin: 0.5em 0;
+            margin: 0.3em 0;
         }
 
         .n8n-chat-widget .chat-message.bot pre code {
@@ -236,9 +249,18 @@
 
         .n8n-chat-widget .chat-message.bot blockquote {
             border-left: 3px solid var(--chat--color-primary);
-            padding-left: 1em;
-            margin: 0.5em 0;
+            padding-left: 0.8em;
+            margin: 0.3em 0;
             opacity: 0.8;
+        }
+
+        /* Remove default margins from first and last child elements */
+        .n8n-chat-widget .chat-message.bot > *:first-child {
+            margin-top: 0;
+        }
+
+        .n8n-chat-widget .chat-message.bot > *:last-child {
+            margin-bottom: 0;
         }
 
         .n8n-chat-widget .chat-input {
@@ -344,10 +366,12 @@
             }
         }
 
+        /* Mobile fullscreen styles */
         @media (max-width: 480px) {
             .n8n-chat-widget .chat-container {
                 width: 100%;
-                height: 100%;
+                height: 100vh;
+                height: -webkit-fill-available;
                 max-width: 100%;
                 max-height: 100%;
                 bottom: 0;
@@ -360,6 +384,22 @@
             .n8n-chat-widget .chat-container.position-left {
                 left: 0;
                 right: 0;
+            }
+            
+            /* When keyboard is open */
+            .n8n-chat-widget .chat-container.keyboard-open {
+                height: var(--viewport-height, 100vh);
+            }
+            
+            .n8n-chat-widget .chat-interface.keyboard-open .chat-messages {
+                flex: 1;
+                min-height: 0;
+            }
+            
+            .n8n-chat-widget .chat-interface.keyboard-open .chat-input {
+                position: relative;
+                bottom: 0;
+                padding-bottom: env(safe-area-inset-bottom, 16px);
             }
             
             .n8n-chat-widget .chat-toggle {
@@ -542,6 +582,86 @@
         const textarea = chatContainer.querySelector('textarea');
         const sendButton = chatContainer.querySelector('button[type="submit"]');
 
+        // Mobile keyboard handling
+        let viewportHeight = window.innerHeight;
+        let initialHeight = window.innerHeight;
+        
+        // Store initial viewport height when page loads
+        function updateViewportHeight() {
+            viewportHeight = window.innerHeight;
+            chatContainer.style.setProperty('--viewport-height', `${viewportHeight}px`);
+        }
+        
+        // Initial set
+        updateViewportHeight();
+
+        // Use VisualViewport API if available (best solution)
+        if ('visualViewport' in window) {
+            const MIN_KEYBOARD_HEIGHT = 300; // Typical minimum keyboard height
+            
+            function handleViewportChange() {
+                const isMobile = window.innerWidth < 768;
+                const isKeyboardOpen = isMobile && window.screen.height - MIN_KEYBOARD_HEIGHT > window.visualViewport.height;
+                
+                if (isKeyboardOpen) {
+                    chatContainer.classList.add('keyboard-open');
+                    chatInterface.classList.add('keyboard-open');
+                } else {
+                    chatContainer.classList.remove('keyboard-open');
+                    chatInterface.classList.remove('keyboard-open');
+                }
+            }
+            
+            window.visualViewport.addEventListener('resize', handleViewportChange);
+            window.visualViewport.addEventListener('scroll', handleViewportChange);
+        } else {
+            // Fallback for browsers without VisualViewport API
+            // Detect keyboard by focus/blur and resize events
+            let focusedTime = 0;
+            
+            textarea.addEventListener('focus', () => {
+                focusedTime = Date.now();
+                // Store height before keyboard appears
+                if (window.innerWidth <= 480) {
+                    initialHeight = window.innerHeight;
+                }
+            });
+            
+            textarea.addEventListener('blur', () => {
+                setTimeout(() => {
+                    chatContainer.classList.remove('keyboard-open');
+                    chatInterface.classList.remove('keyboard-open');
+                }, 100);
+            });
+            
+            // When virtual keyboard is open, it fires windows resize event
+            window.addEventListener('resize', () => {
+                if (window.innerWidth <= 480 && focusedTime) {
+                    const timeSinceFocus = Date.now() - focusedTime;
+                    // Check if resize happened shortly after focus
+                    if (timeSinceFocus < 1000) {
+                        const heightDiff = initialHeight - window.innerHeight;
+                        // If height decreased significantly, keyboard is probably open
+                        if (heightDiff > 100) {
+                            chatContainer.classList.add('keyboard-open');
+                            chatInterface.classList.add('keyboard-open');
+                        }
+                    }
+                }
+            });
+        }
+
+        // Ensure input stays visible when focused on mobile
+        textarea.addEventListener('focus', () => {
+            if (window.innerWidth <= 480) {
+                setTimeout(() => {
+                    textarea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    // Also scroll the messages to bottom to see latest
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 300); // Delay for keyboard animation
+            }
+        });
+
         function generateUUID() {
             return crypto.randomUUID();
         }
@@ -669,6 +789,7 @@
             if (message) {
                 sendMessage(message);
                 textarea.value = '';
+                textarea.style.height = 'auto'; // Reset height after sending
             }
         });
         
@@ -679,12 +800,23 @@
                 if (message) {
                     sendMessage(message);
                     textarea.value = '';
+                    textarea.style.height = 'auto'; // Reset height
                 }
             }
+        });
+
+        // Auto-resize textarea
+        textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
         });
         
         toggleButton.addEventListener('click', () => {
             chatContainer.classList.toggle('open');
+            // Update viewport height when opening chat on mobile
+            if (chatContainer.classList.contains('open') && window.innerWidth <= 480) {
+                updateViewportHeight();
+            }
         });
 
         // Add close button handlers
@@ -693,6 +825,15 @@
             button.addEventListener('click', () => {
                 chatContainer.classList.remove('open');
             });
+        });
+
+        // Handle orientation changes
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                if (chatContainer.classList.contains('open') && window.innerWidth <= 480) {
+                    updateViewportHeight();
+                }
+            }, 500);
         });
     }
 })();
