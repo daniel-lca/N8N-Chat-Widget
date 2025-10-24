@@ -282,6 +282,11 @@
             resize: none;
             font-family: inherit;
             font-size: var(--chat--font-size);
+            /* min-height: 44px; */
+            /* height: 44px; */
+            line-height: 1.4; 
+            overflow-y: hidden; 
+            transition: height 0.1s ease; 
         }
 
         .n8n-chat-widget .chat-input textarea::placeholder {
@@ -304,6 +309,9 @@
             transition: transform 0.2s;
             font-family: inherit;
             font-weight: 500;
+            height: 44px;
+            /* min-height: 44px; */
+            align-self: flex-end;
         }
 
         .n8n-chat-widget .chat-input button:hover:not(:disabled) {
@@ -900,8 +908,17 @@
 
         // Auto-resize textarea
         textarea.addEventListener('input', () => {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+            // Count the number of line breaks
+            const lines = textarea.value.split('\n').length;
+            
+            // Only start resizing if there's more than one line
+            if (lines > 1 || textarea.scrollHeight > textarea.clientHeight) {
+                textarea.style.height = 'auto';
+                textarea.style.height = Math.min(textarea.scrollHeight, 44) + 'px';
+            } else {
+                // Keep it at the default height for single line
+                textarea.style.height = ''; // Reset to CSS default
+            }
         });
         
         toggleButton.addEventListener('click', () => {
