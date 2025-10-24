@@ -4,11 +4,11 @@ A minimal, highly customizable chat widget designed for easy embedding on any we
 
 ---
 
-## 🚀 Quick Usage (CDN)
+## Quick Usage (CDN)
 
 To add the chat widget to your website, include the configuration and the script directly from jsDelivr.
 
-### 1. The Installation Template
+### The Installation Template
 
 Use the following code block in your HTML, preferably right before the closing `</body>` tag.
 
@@ -47,6 +47,7 @@ Use the following code block in your HTML, preferably right before the closing `
 
 <script src="https://cdn.jsdelivr.net/gh/daniel-lca/N8N-Chat-Widget@master/chat-widget.js"></script>
 <!-- End Widget Configuration -->
+
 
 
 
