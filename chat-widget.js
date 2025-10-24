@@ -290,8 +290,8 @@
 
         @media (max-width: 480px) {
             .n8n-chat-widget .chat-container {
-                width: 100%;
-                height: 100%;
+                width: 100svw;
+                height: 100svh;
                 max-width: 100svw;
                 max-height: 100svh;
                 bottom: 0;
