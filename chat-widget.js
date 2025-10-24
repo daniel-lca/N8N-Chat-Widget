@@ -280,13 +280,7 @@
             opacity: 1;
         }
 
-        /* Responsive styles */
-        @media (max-width: 768px) {
-            .n8n-chat-widget .chat-container {
-                width: min(var(--chat--width), calc(100vw - 40px));
-                height: min(var(--chat--height), calc(100vh - 100px));
-            }
-        }
+       
             
             .n8n-chat-widget .chat-container.position-left {
                 left: 0;
