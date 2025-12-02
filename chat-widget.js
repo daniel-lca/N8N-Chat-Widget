@@ -1,5 +1,5 @@
 // Chat Widget Script
-(function() {
+(function () {
     // Create and inject styles
     const styles = `
         .n8n-chat-widget {
@@ -12,7 +12,13 @@
             --chat--height: var(--n8n-chat-height, 600px);
             --chat--max-width: var(--n8n-chat-max-width, 90vw);
             --chat--max-height: var(--n8n-chat-max-height, 80vh);
+            --chat--max-height: var(--n8n-chat-max-height, 80vh);
             font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            box-sizing: border-box;
+        }
+
+        .n8n-chat-widget *, .n8n-chat-widget *::before, .n8n-chat-widget *::after {
+            box-sizing: inherit;
         }
 
         .n8n-chat-widget .chat-container {
@@ -94,22 +100,48 @@
         }
 
         .n8n-chat-widget .new-conversation {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            flex: 1;
+            overflow-y: auto;
             padding: 20px;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
             width: 100%;
-            max-width: 300px;
+        }
+
+        .n8n-chat-widget .new-conversation-content {
+            margin: auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .n8n-chat-widget .new-conversation-content.prechat-mode {
+            gap: 12px;
+        }
+
+        .n8n-chat-widget .new-conversation::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .n8n-chat-widget .new-conversation::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .n8n-chat-widget .new-conversation::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
         }
 
         .n8n-chat-widget .welcome-text {
             font-size: 24px;
             font-weight: 600;
             color: var(--chat--color-font);
-            margin-bottom: 24px;
             line-height: 1.3;
+            margin: 0;
+            text-align: center;
         }
 
         .n8n-chat-widget .new-chat-btn {
@@ -117,8 +149,9 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            width: 100%;
-            padding: 16px 24px;
+            width: auto;
+            min-width: 200px;
+            padding: 16px 32px;
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
             border: none;
@@ -128,7 +161,6 @@
             transition: transform 0.3s;
             font-weight: 500;
             font-family: inherit;
-            margin-bottom: 12px;
         }
 
         .n8n-chat-widget .new-chat-btn:hover {
@@ -470,6 +502,51 @@
                 right: auto;
             }
         }
+
+        /* Pre-chat form styles */
+        /* Pre-chat form styles */
+        .n8n-chat-widget .prechat-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 300px; /* Limit width for better aesthetics */
+            padding: 0 16px; /* Add some horizontal padding */
+        }
+
+        .n8n-chat-widget .prechat-form .new-chat-btn {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .n8n-chat-widget .prechat-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+        }
+
+        .n8n-chat-widget .prechat-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--chat--color-font);
+        }
+
+        .n8n-chat-widget .prechat-input {
+            padding: 12px;
+            border: 1px solid rgba(133, 79, 255, 0.2);
+            border-radius: 8px;
+            background: var(--chat--color-background);
+            color: var(--chat--color-font);
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .n8n-chat-widget .prechat-input:focus {
+            border-color: var(--chat--color-primary);
+            outline: none;
+        }
     `;
 
     // Load dependencies
@@ -535,24 +612,39 @@
             markdown: {
                 enabled: true,
                 sanitize: true
+            },
+            prechat: {
+                enabled: false,
+                title: "Let's start",
+                titleFontSize: "24px",
+                submitLabel: "Continue to chat",
+                inputs: [
+                    { id: 'name', label: 'Name', type: 'text', required: true },
+                    { id: 'email', label: 'Email', type: 'email', required: true }
+                ]
             }
         };
 
         // Merge user config with defaults
-        const config = window.ChatWidgetConfig ? 
+        const config = window.ChatWidgetConfig ?
             {
                 webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
-                branding: { 
-                    ...defaultConfig.branding, 
+                branding: {
+                    ...defaultConfig.branding,
                     ...window.ChatWidgetConfig.branding,
                     poweredBy: { ...defaultConfig.branding.poweredBy, ...(window.ChatWidgetConfig.branding?.poweredBy || {}) }
                 },
-                style: { 
-                    ...defaultConfig.style, 
+                style: {
+                    ...defaultConfig.style,
                     ...window.ChatWidgetConfig.style,
                     dimensions: { ...defaultConfig.style.dimensions, ...(window.ChatWidgetConfig.style?.dimensions || {}) }
                 },
-                markdown: { ...defaultConfig.markdown, ...(window.ChatWidgetConfig.markdown || {}) }
+                markdown: { ...defaultConfig.markdown, ...(window.ChatWidgetConfig.markdown || {}) },
+                prechat: {
+                    ...defaultConfig.prechat,
+                    ...(window.ChatWidgetConfig.prechat || {}),
+                    inputs: (window.ChatWidgetConfig.prechat?.inputs || defaultConfig.prechat.inputs).slice(0, 5)
+                }
             } : defaultConfig;
 
         // Prevent multiple initializations
@@ -564,14 +656,14 @@
         // Create widget container
         const widgetContainer = document.createElement('div');
         widgetContainer.className = 'n8n-chat-widget';
-        
+
         // Set CSS variables
         widgetContainer.style.setProperty('--n8n-chat-primary-color', config.style.primaryColor);
         widgetContainer.style.setProperty('--n8n-chat-secondary-color', config.style.secondaryColor);
         widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
         widgetContainer.style.setProperty('--n8n-chat-font-color', config.style.fontColor);
         widgetContainer.style.setProperty('--n8n-chat-font-size', config.style.fontSize || '14px');
-        
+
         // Set dimension variables
         if (config.style.dimensions) {
             widgetContainer.style.setProperty('--n8n-chat-width', config.style.dimensions.width || '380px');
@@ -582,7 +674,7 @@
 
         const chatContainer = document.createElement('div');
         chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
-        
+
         const newConversationHTML = `
             <div class="brand-header">
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
@@ -590,14 +682,40 @@
                 <button class="close-button">×</button>
             </div>
             <div class="new-conversation">
-                <h2 class="welcome-text">${config.branding.welcomeText}</h2>
-                <button class="new-chat-btn">
-                    <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
-                    </svg>
-                    Send us a message
-                </button>
-                <p class="response-text">${config.branding.responseTimeText}</p>
+                <div class="new-conversation-content${config.prechat.enabled ? ' prechat-mode' : ''}">
+                    ${config.prechat.enabled && config.prechat.title ? `
+                        <h2 class="welcome-text" style="font-size: ${config.prechat.titleFontSize || '24px'}">${config.prechat.title}</h2>
+                    ` : (!config.prechat.enabled ? `<h2 class="welcome-text">${config.branding.welcomeText}</h2>` : '')}
+                    
+                    ${config.prechat.enabled ? `
+                        <form class="prechat-form">
+                            ${config.prechat.inputs.map(input => `
+                                <div class="prechat-field">
+                                    <label for="prechat-${input.id}" class="prechat-label">${input.label}</label>
+                                    <input 
+                                        type="${input.type}" 
+                                        id="prechat-${input.id}" 
+                                        name="${input.id}" 
+                                        class="prechat-input" 
+                                        ${input.required ? 'required' : ''}
+                                        placeholder="${input.placeholder || ''}"
+                                    >
+                                </div>
+                            `).join('')}
+                            <button type="submit" class="new-chat-btn">
+                                ${config.prechat.submitLabel}
+                            </button>
+                        </form>
+                    ` : `
+                        <button class="new-chat-btn">
+                            <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
+                            </svg>
+                            Send us a message
+                        </button>
+                    `}
+                    <p class="response-text">${config.branding.responseTimeText}</p>
+                </div>
             </div>
         `;
 
@@ -618,16 +736,16 @@
                 </div>
             </div>
         `;
-        
+
         chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
-        
+
         const toggleButton = document.createElement('button');
         toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
         toggleButton.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
             </svg>`;
-        
+
         widgetContainer.appendChild(chatContainer);
         widgetContainer.appendChild(toggleButton);
         document.body.appendChild(widgetContainer);
@@ -636,29 +754,29 @@
         const chatInterface = chatContainer.querySelector('.chat-interface');
         const messagesContainer = chatContainer.querySelector('.chat-messages');
         const textarea = chatContainer.querySelector('textarea');
-        const sendButton = chatContainer.querySelector('button[type="submit"]');
+        const sendButton = chatContainer.querySelector('.chat-input button[type="submit"]');
 
         // Mobile keyboard handling
         let viewportHeight = window.innerHeight;
         let initialHeight = window.innerHeight;
-        
+
         // Store initial viewport height when page loads
         function updateViewportHeight() {
             viewportHeight = window.innerHeight;
             chatContainer.style.setProperty('--viewport-height', `${viewportHeight}px`);
         }
-        
+
         // Initial set
         updateViewportHeight();
 
         // Use VisualViewport API if available (best solution)
         if ('visualViewport' in window) {
             const MIN_KEYBOARD_HEIGHT = 300; // Typical minimum keyboard height
-            
+
             function handleViewportChange() {
                 const isMobile = window.innerWidth < 768;
                 const isKeyboardOpen = isMobile && window.screen.height - MIN_KEYBOARD_HEIGHT > window.visualViewport.height;
-                
+
                 if (isKeyboardOpen) {
                     chatContainer.classList.add('keyboard-open');
                     chatInterface.classList.add('keyboard-open');
@@ -667,14 +785,14 @@
                     chatInterface.classList.remove('keyboard-open');
                 }
             }
-            
+
             window.visualViewport.addEventListener('resize', handleViewportChange);
             window.visualViewport.addEventListener('scroll', handleViewportChange);
         } else {
             // Fallback for browsers without VisualViewport API
             // Detect keyboard by focus/blur and resize events
             let focusedTime = 0;
-            
+
             textarea.addEventListener('focus', () => {
                 focusedTime = Date.now();
                 // Store height before keyboard appears
@@ -682,14 +800,14 @@
                     initialHeight = window.innerHeight;
                 }
             });
-            
+
             textarea.addEventListener('blur', () => {
                 setTimeout(() => {
                     chatContainer.classList.remove('keyboard-open');
                     chatInterface.classList.remove('keyboard-open');
                 }, 100);
             });
-            
+
             // When virtual keyboard is open, it fires windows resize event
             window.addEventListener('resize', () => {
                 if (window.innerWidth <= 480 && focusedTime) {
@@ -723,10 +841,11 @@
         }
 
         // Function to process message content (markdown or plain text)
+        // Function to process message content (markdown or plain text)
         function processMessageContent(content, isBot = true) {
             // Trim whitespace from content
             content = content.trim();
-            
+
             if (!isBot || !config.markdown.enabled) {
                 // For user messages or when markdown is disabled, return plain text
                 return { type: 'text', content: content };
@@ -736,16 +855,16 @@
             try {
                 // Parse markdown to HTML
                 const rawHtml = marked.parse(content);
-                
+
                 // Sanitize HTML if enabled
-                let finalHtml = config.markdown.sanitize ? 
+                let finalHtml = config.markdown.sanitize ?
                     DOMPurify.sanitize(rawHtml) : rawHtml;
-                
+
                 // Remove trailing empty paragraphs and line breaks
                 finalHtml = finalHtml.trim()
                     .replace(/<p>\s*<\/p>\s*$/gi, '')
                     .replace(/<br\s*\/?>\s*$/gi, '');
-                
+
                 return { type: 'html', content: finalHtml };
             } catch (error) {
                 console.error('Error parsing markdown:', error);
@@ -753,8 +872,18 @@
             }
         }
 
-        async function startNewConversation() {
+        async function startNewConversation(initialMessage = null) {
             currentSessionId = generateUUID();
+
+            chatContainer.querySelector('.brand-header').style.display = 'none';
+            chatContainer.querySelector('.new-conversation').style.display = 'none';
+            chatInterface.classList.add('active');
+
+            if (initialMessage) {
+                await sendMessage(initialMessage, true);
+                return;
+            }
+
             const data = [{
                 action: "loadPreviousSession",
                 sessionId: currentSessionId,
@@ -774,23 +903,20 @@
                 });
 
                 const responseData = await response.json();
-                chatContainer.querySelector('.brand-header').style.display = 'none';
-                chatContainer.querySelector('.new-conversation').style.display = 'none';
-                chatInterface.classList.add('active');
 
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'chat-message bot';
-                
+
                 // Process the message content
                 const messageContent = Array.isArray(responseData) ? responseData[0].output : responseData.output;
                 const processed = processMessageContent(messageContent, true);
-                
+
                 if (processed.type === 'html') {
                     botMessageDiv.innerHTML = processed.content;
                 } else {
                     botMessageDiv.textContent = processed.content;
                 }
-                
+
                 messagesContainer.appendChild(botMessageDiv);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             } catch (error) {
@@ -798,17 +924,17 @@
             }
         }
 
-        async function sendMessage(message) {
+        async function sendMessage(message, hidden = false) {
             // Disable send button and textarea
             sendButton.disabled = true;
             textarea.disabled = true;
             sendButton.style.opacity = '0.6';
             sendButton.style.cursor = 'not-allowed';
-            
+
             // Optional: Change button text to show loading
             const originalButtonText = sendButton.textContent;
             sendButton.textContent = 'Send';
-            
+
             const messageData = {
                 action: "sendMessage",
                 sessionId: currentSessionId,
@@ -819,11 +945,13 @@
                 }
             };
 
-            const userMessageDiv = document.createElement('div');
-            userMessageDiv.className = 'chat-message user';
-            userMessageDiv.textContent = message;
-            messagesContainer.appendChild(userMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            if (!hidden) {
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.className = 'chat-message user';
+                userMessageDiv.textContent = message;
+                messagesContainer.appendChild(userMessageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
 
             // Add typing indicator
             const typingIndicator = document.createElement('div');
@@ -840,32 +968,32 @@
                     },
                     body: JSON.stringify(messageData)
                 });
-                
+
                 const data = await response.json();
-                
+
                 // Remove typing indicator
                 typingIndicator.remove();
-                
+
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'chat-message bot';
-                
+
                 // Process the message content
                 const messageContent = Array.isArray(data) ? data[0].output : data.output;
                 const processed = processMessageContent(messageContent, true);
-                
+
                 if (processed.type === 'html') {
                     botMessageDiv.innerHTML = processed.content;
                 } else {
                     botMessageDiv.textContent = processed.content;
                 }
-                
+
                 messagesContainer.appendChild(botMessageDiv);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             } catch (error) {
                 console.error('Error:', error);
                 // Remove typing indicator
                 typingIndicator.remove();
-                
+
                 // Show error message to the user
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'chat-message bot';
@@ -883,8 +1011,28 @@
             }
         }
 
-        newChatBtn.addEventListener('click', startNewConversation);
-        
+        if (config.prechat.enabled) {
+            const prechatForm = chatContainer.querySelector('.prechat-form');
+            if (prechatForm) {
+                prechatForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(prechatForm);
+                    let messageText = '**Form Submission**\n\n';
+
+                    for (const [key, value] of formData.entries()) {
+                        const label = config.prechat.inputs.find(i => i.id === key)?.label || key;
+                        messageText += `**${label}:** ${value}\n`;
+                    }
+
+                    startNewConversation(messageText);
+                });
+            }
+        } else {
+            if (newChatBtn) {
+                newChatBtn.addEventListener('click', () => startNewConversation());
+            }
+        }
+
         sendButton.addEventListener('click', () => {
             const message = textarea.value.trim();
             if (message) {
@@ -893,7 +1041,7 @@
                 textarea.style.height = 'auto'; // Reset height after sending
             }
         });
-        
+
         textarea.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -910,7 +1058,7 @@
         textarea.addEventListener('input', () => {
             // Count the number of line breaks
             const lines = textarea.value.split('\n').length;
-            
+
             // Only start resizing if there's more than one line
             if (lines > 1 || textarea.scrollHeight > textarea.clientHeight) {
                 textarea.style.height = 'auto';
@@ -920,7 +1068,7 @@
                 textarea.style.height = ''; // Reset to CSS default
             }
         });
-        
+
         toggleButton.addEventListener('click', () => {
             chatContainer.classList.toggle('open');
             // Update viewport height when opening chat on mobile
