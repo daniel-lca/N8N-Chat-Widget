@@ -841,7 +841,6 @@
         }
 
         // Function to process message content (markdown or plain text)
-        // Function to process message content (markdown or plain text)
         function processMessageContent(content, isBot = true) {
             // Trim whitespace from content
             content = content.trim();
