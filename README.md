@@ -13,21 +13,6 @@ To add the chat widget to your website, include the configuration and the script
 Use the following code block in your HTML, preferably right before the closing `</body>` tag.
 
 **Remember to replace the placeholders!**
-# N8N Chat Widget
-
-A minimal, highly customizable chat widget designed for easy embedding on any website. It connects to your **n8n automation flows** via a webhook, making it simple to build AI-powered conversational experiences.
-
----
-
-## Quick Usage (CDN)
-
-To add the chat widget to your website, include the configuration and the script directly from jsDelivr.
-
-### The Installation Template
-
-Use the following code block in your HTML, preferably right before the closing `</body>` tag.
-
-**Remember to replace the placeholders!**
 
 ```html
 <!-- Widget Configuration -->
@@ -137,3 +122,4 @@ prechat: {
 - `type`: HTML input type (e.g., 'text', 'email', 'tel', 'number').
 - `required`: `true` or `false`.
 - `placeholder`: Placeholder text (optional).
+
