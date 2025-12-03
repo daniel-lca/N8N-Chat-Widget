@@ -531,8 +531,13 @@
             font-weight: 500;
             color: var(--chat--color-font);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 4px;
+        }
+
+        .n8n-chat-widget .prechat-label.spread {
+            justify-content: space-between;
+            gap: 0;
         }
 
         .n8n-chat-widget .prechat-required-marker {
@@ -702,7 +707,7 @@
                         <form class="prechat-form">
                             ${config.prechat.inputs.map(input => `
                                 <div class="prechat-field">
-                                    <label for="prechat-${input.id}" class="prechat-label">
+                                    <label for="prechat-${input.id}" class="prechat-label${config.prechat.requiredFieldMarking !== '*' ? ' spread' : ''}">
                                         ${input.label}
                                         ${input.required ? `<span class="prechat-required-marker">${config.prechat.requiredFieldMarking}</span>` : ''}
                                     </label>
@@ -777,7 +782,7 @@
         // Store initial viewport height when page loads
         function updateViewportHeight() {
             viewportHeight = window.innerHeight;
-            chatContainer.style.setProperty('--viewport-height', `${viewportHeight} px`);
+            chatContainer.style.setProperty('--viewport-height', `${viewportHeight}px`);
         }
 
         // Initial set
