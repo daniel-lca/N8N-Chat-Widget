@@ -530,6 +530,15 @@
             font-size: 14px;
             font-weight: 500;
             color: var(--chat--color-font);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .n8n-chat-widget .prechat-required-marker {
+            font-size: 12px;
+            opacity: 0.7;
+            font-weight: 400;
         }
 
         .n8n-chat-widget .prechat-input {
@@ -618,6 +627,7 @@
                 title: "Let's start",
                 titleFontSize: "24px",
                 submitLabel: "Continue to chat",
+                requiredFieldMarking: "*",
                 inputs: [
                     { id: 'name', label: 'Name', type: 'text', required: true },
                     { id: 'email', label: 'Email', type: 'email', required: true }
@@ -643,6 +653,7 @@
                 prechat: {
                     ...defaultConfig.prechat,
                     ...(window.ChatWidgetConfig.prechat || {}),
+                    requiredFieldMarking: window.ChatWidgetConfig.prechat?.requiredFieldMarking || defaultConfig.prechat.requiredFieldMarking,
                     inputs: (window.ChatWidgetConfig.prechat?.inputs || defaultConfig.prechat.inputs).slice(0, 5)
                 }
             } : defaultConfig;
@@ -691,7 +702,10 @@
                         <form class="prechat-form">
                             ${config.prechat.inputs.map(input => `
                                 <div class="prechat-field">
-                                    <label for="prechat-${input.id}" class="prechat-label">${input.label}</label>
+                                    <label for="prechat-${input.id}" class="prechat-label">
+                                        ${input.label}
+                                        ${input.required ? `<span class="prechat-required-marker">${config.prechat.requiredFieldMarking}</span>` : ''}
+                                    </label>
                                     <input 
                                         type="${input.type}" 
                                         id="prechat-${input.id}" 
@@ -763,7 +777,7 @@
         // Store initial viewport height when page loads
         function updateViewportHeight() {
             viewportHeight = window.innerHeight;
-            chatContainer.style.setProperty('--viewport-height', `${viewportHeight}px`);
+            chatContainer.style.setProperty('--viewport-height', `${viewportHeight} px`);
         }
 
         // Initial set
@@ -1020,7 +1034,7 @@
 
                     for (const [key, value] of formData.entries()) {
                         const label = config.prechat.inputs.find(i => i.id === key)?.label || key;
-                        messageText += `**${label}:** ${value}\n`;
+                        messageText += `** ${label}:** ${value} \n`;
                     }
 
                     startNewConversation(messageText);

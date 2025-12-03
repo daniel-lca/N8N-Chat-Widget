@@ -88,6 +88,7 @@ prechat: {
   title: "Let's start", // Title on the form screen (leave empty to hide)
   titleFontSize: "24px", // Font size of the title
   submitLabel: "Start Chat", // Text for the submit button
+  requiredFieldMarking: "*", // Indicator for required fields (e.g., "*" or "required")
   inputs: [
     // Array of input fields (max 5)
     { 
@@ -114,6 +115,7 @@ prechat: {
 | `title` | Title displayed above the form. Set to `""` to remove it. |
 | `titleFontSize` | CSS font-size value for the title (e.g., "20px", "1.5rem"). |
 | `submitLabel` | Text for the submit button. |
+| `requiredFieldMarking` | Text or symbol to indicate required fields (default: `*`). |
 | `inputs` | Array of input objects. |
 
 **Input Object Properties:**
