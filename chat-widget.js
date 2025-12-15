@@ -606,8 +606,10 @@
                 responseTimeText: '',
                 poweredBy: {
                     text: 'Powered by LowCode',
+                    text: 'Powered by LowCode',
                     link: 'https://www.lowcode.agency'
-                }
+                },
+                chatInputPlaceholder: 'Type your message here...'
             },
             style: {
                 primaryColor: '',
@@ -747,7 +749,7 @@
                 </div>
                 <div class="chat-messages"></div>
                 <div class="chat-input">
-                    <textarea placeholder="Type your message here..." rows="1"></textarea>
+                    <textarea placeholder="${config.branding.chatInputPlaceholder}" rows="1"></textarea>
                     <button type="submit">Send</button>
                 </div>
                 <div class="chat-footer">
@@ -936,7 +938,7 @@
                 }
 
                 messagesContainer.appendChild(botMessageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                botMessageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } catch (error) {
                 console.error('Error:', error);
             }
@@ -1006,7 +1008,7 @@
                 }
 
                 messagesContainer.appendChild(botMessageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                botMessageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } catch (error) {
                 console.error('Error:', error);
                 // Remove typing indicator
@@ -1017,7 +1019,7 @@
                 errorDiv.className = 'chat-message bot';
                 errorDiv.textContent = 'Sorry, there was an error processing your message. Please try again.';
                 messagesContainer.appendChild(errorDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } finally {
                 // Re-enable send button and textarea
                 sendButton.disabled = false;

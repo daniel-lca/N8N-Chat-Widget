@@ -67,6 +67,7 @@ The `window.ChatWidgetConfig` object allows you to customize every aspect of the
 | `branding.welcomeText` | The message shown on the welcome screen (when pre-chat form is disabled). |
 | `branding.responseTimeText` | Subtitle text on the welcome screen (e.g., "We reply instantly"). |
 | `branding.poweredBy` | Object with `text` and `link` to customize the footer. |
+| `branding.chatInputPlaceholder` | Placeholder text for the chat input area (default: "Type your message here..."). |
 
 ### Styling
 | Property | Description |
