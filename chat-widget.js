@@ -206,7 +206,6 @@
             word-wrap: break-word;
             font-size: var(--chat--font-size);
             line-height: 1.4;
-            white-space: pre-wrap;
             word-wrap: break-word;
         }
 
@@ -216,6 +215,7 @@
             align-self: flex-end;
             box-shadow: 0 4px 12px rgba(133, 79, 255, 0.2);
             border: none;
+            white-space: pre-wrap;
         }
 
         .n8n-chat-widget .chat-message.bot {
@@ -224,6 +224,7 @@
             color: var(--chat--color-font);
             align-self: flex-start;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            white-space: normal;
         }
 
         /* Markdown styling for bot messages */
@@ -233,18 +234,18 @@
         .n8n-chat-widget .chat-message.bot h4,
         .n8n-chat-widget .chat-message.bot h5,
         .n8n-chat-widget .chat-message.bot h6 {
-            margin: 0.3em 0;
+            margin: 1em 0 0.5em 0;
             font-weight: 600;
         }
 
         .n8n-chat-widget .chat-message.bot ul,
         .n8n-chat-widget .chat-message.bot ol {
-            margin: 0.3em 0;
+            margin: 0.8em 0;
             padding-left: 1.2em;
         }
 
         .n8n-chat-widget .chat-message.bot p {
-            margin: 0.3em 0;
+            margin: 0.8em 0;
         }
 
         .n8n-chat-widget .chat-message.bot p:first-child {
@@ -606,8 +607,10 @@
                 responseTimeText: '',
                 poweredBy: {
                     text: 'Powered by LowCode',
+                    text: 'Powered by LowCode',
                     link: 'https://www.lowcode.agency'
-                }
+                },
+                chatInputPlaceholder: 'Type your message here...'
             },
             style: {
                 primaryColor: '',
@@ -747,7 +750,7 @@
                 </div>
                 <div class="chat-messages"></div>
                 <div class="chat-input">
-                    <textarea placeholder="Type your message here..." rows="1"></textarea>
+                    <textarea placeholder="${config.branding.chatInputPlaceholder}" rows="1"></textarea>
                     <button type="submit">Send</button>
                 </div>
                 <div class="chat-footer">
@@ -859,6 +862,14 @@
             return crypto.randomUUID();
         }
 
+        function makeLinksOpenInNewTab(container) {
+            const links = container.querySelectorAll('a');
+            links.forEach(link => {
+                link.setAttribute('target', '_blank');
+                link.setAttribute('rel', 'noopener noreferrer');
+            });
+        }
+
         // Function to process message content (markdown or plain text)
         function processMessageContent(content, isBot = true) {
             // Trim whitespace from content
@@ -872,7 +883,7 @@
             // For bot messages with markdown enabled
             try {
                 // Parse markdown to HTML
-                const rawHtml = marked.parse(content);
+                const rawHtml = marked.parse(content, { breaks: true, gfm: true });
 
                 // Sanitize HTML if enabled
                 let finalHtml = config.markdown.sanitize ?
@@ -936,7 +947,8 @@
                 }
 
                 messagesContainer.appendChild(botMessageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                makeLinksOpenInNewTab(botMessageDiv);
+                botMessageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } catch (error) {
                 console.error('Error:', error);
             }
@@ -1006,7 +1018,8 @@
                 }
 
                 messagesContainer.appendChild(botMessageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                makeLinksOpenInNewTab(botMessageDiv);
+                botMessageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } catch (error) {
                 console.error('Error:', error);
                 // Remove typing indicator
@@ -1017,7 +1030,8 @@
                 errorDiv.className = 'chat-message bot';
                 errorDiv.textContent = 'Sorry, there was an error processing your message. Please try again.';
                 messagesContainer.appendChild(errorDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                makeLinksOpenInNewTab(errorDiv);
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } finally {
                 // Re-enable send button and textarea
                 sendButton.disabled = false;

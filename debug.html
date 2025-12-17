@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Widget Debug</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat Widget Debug Page</h1>
+
+    <!-- Widget Configuration -->
+    <script>
+    window.ChatWidgetConfig = {
+        webhook: {
+        url: 'https://primary-production-b3da.up.railway.app/webhook/b35b019c-6d2d-451e-99ff-65a7c9d6645e/chat',
+        route: 'general'
+        },
+        branding: {
+        logo: 'https://cdn.prod.website-files.com/68f6b0627c50aabd0073a82e/68f6e30a91abdac7a8084e26_logo_icon.svg',
+        name: 'Cora',
+        welcomeText: "Let's start",
+        responseTimeText: ''
+        },
+        style: {
+        primaryColor: '#8900FF',
+        secondaryColor: '#D100FF',
+        position: 'right',
+        backgroundColor: '#ffffff',
+        fontColor: '#333333',
+        fontSize: '14px',
+        dimensions: {
+            width: '380px',
+            height: '700px',
+            maxWidth: '95vw',
+            maxHeight: '90vh'
+        }
+        },
+        prechat: {
+        enabled: true,
+        title: "",
+        submitLabel: "Start chat",
+        requiredFieldMarking: "Required",
+        inputs: [
+            { id: 'name', label: 'Name', type: 'text', required: true, placeholder: 'John Doe' },
+            { id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'johndoe@email.com'},
+            { id: 'phone', label: 'Phone number', type: 'tel', required: true, placeholder: '123-456-7890'},
+            { id: 'counselorCode', label: 'Counselor code', type: 'text', placeholder: "Leave empty if you don't have one"},
+            { id: 'zipCode', label: 'Zip code', type: 'number', required: true, placeholder: '96162'}
+        ]
+        }
+    };
+    </script>
+    <!-- End Widget Configuration -->
+
+    <!-- Load Local Widget Script -->
+    <script src="chat-widget.js"></script>
+</body>
+</html>
